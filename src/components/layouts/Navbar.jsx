@@ -13,36 +13,28 @@ export default function Navbar() {
     <nav className="flex gap-2 p-4 bg-black border-b border-gray-800">
       <NavLink
         to="/"
-        className={({ isActive }) =>
-          `${base} ${isActive ? active : inactive}`
-        }
+        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
       >
         Pulse
       </NavLink>
 
       <NavLink
         to="/community"
-        className={({ isActive }) =>
-          `${base} ${isActive ? active : inactive}`
-        }
+        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
       >
         Community
       </NavLink>
 
       <NavLink
         to="/discover"
-        className={({ isActive }) =>
-          `${base} ${isActive ? active : inactive}`
-        }
+        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
       >
         Discover
       </NavLink>
 
       <NavLink
         to="/profile"
-        className={({ isActive }) =>
-          `${base} ${isActive ? active : inactive}`
-        }
+        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
       >
         Profile
       </NavLink>
