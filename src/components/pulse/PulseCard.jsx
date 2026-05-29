@@ -6,14 +6,24 @@ export default function PulseCard({
     description,
     image,
     id,
+    game,
     variant = "default",
 }) {
     const navigate = useNavigate();
 
+    const goToPost = () => {
+        navigate(`/pulse/${id}`);
+    };
+
+    const goToGame = (e) => {
+        e.stopPropagation();
+        navigate(`/games/${game.id}`);
+    };
+
     if (variant === "compact") {
         return (
             <article
-                onClick={() => navigate(`/pulse/${id}`)}
+                onClick={goToPost}
                 className="flex gap-4 rounded-2xl border border-border bg-surface p-4 transition duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-md cursor-pointer"
             >
                 <img
@@ -29,7 +39,14 @@ export default function PulseCard({
                         {title}
                     </h3>
 
-                    <p className="text-sm text-text-muted line-clamp-2">
+                    <p
+                        onClick={goToGame}
+                        className="text-xs text-primary mt-1 hover:underline cursor-pointer"
+                    >
+                        {game?.name}
+                    </p>
+
+                    <p className="text-sm text-text-muted line-clamp-2 mt-2">
                         {description}
                     </p>
                 </div>
@@ -39,7 +56,7 @@ export default function PulseCard({
 
     return (
         <article
-            onClick={() => navigate(`/pulse/${id}`)}
+            onClick={goToPost}
             className="group overflow-hidden rounded-3xl border border-border bg-surface transition duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-lg cursor-pointer"
         >
             {/* IMAGE */}
@@ -53,21 +70,24 @@ export default function PulseCard({
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
 
                 <div className="absolute bottom-4 left-4">
-                    <p className="mb-2 text-sm text-primary">
-                        {category}
-                    </p>
+                    <p className="mb-2 text-sm text-primary">{category}</p>
 
                     <h3 className="max-w-md text-2xl font-bold text-white">
                         {title}
                     </h3>
+
+                    <p
+                        onClick={goToGame}
+                        className="text-xs text-white/80 mt-1 hover:underline cursor-pointer"
+                    >
+                        {game?.name}
+                    </p>
                 </div>
             </div>
 
             {/* CONTENT */}
             <div className="p-5">
-                <p className="text-text-muted">
-                    {description}
-                </p>
+                <p className="text-text-muted">{description}</p>
             </div>
         </article>
     );
