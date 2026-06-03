@@ -1,94 +1,96 @@
 import { useNavigate } from "react-router-dom";
+import { useSavePost } from "../../hooks/useSavePost";
 
 export default function PulseCard({
-    category,
-    title,
-    description,
-    image,
-    id,
-    game,
-    variant = "default",
+  id,
+  title,
+  description,
+  image,
+  type,
+  games = [],
+  variant = "review",
+  signalScore, // ✅ IMPORTANTISSIMO
 }) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { savePost, isSaved } = useSavePost();
+  const emptyStar = <i className="fa-regular fa-star"></i>
+  const fullStar = <i className="fa-solid fa-star"></i>
 
-    const goToPost = () => {
-        navigate(`/pulse/${id}`);
-    };
+  const sizeStyles =
+    variant === "spotlight"
+      ? "md:col-span-2"
+      : variant === "trend"
+      ? "opacity-95"
+      : "";
 
-    const goToGame = (e) => {
-        e.stopPropagation();
-        navigate(`/games/${game.id}`);
-    };
 
-    if (variant === "compact") {
-        return (
-            <article
-                onClick={goToPost}
-                className="flex gap-4 rounded-2xl border border-border bg-surface p-4 transition duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-md cursor-pointer"
+
+  return (
+    <article
+      onClick={() => navigate(`/pulse/${id}`)}
+      className={`
+        rounded-2xl border border-border bg-surface p-4 cursor-pointer
+        hover:border-primary transition
+        ${sizeStyles}
+      `}
+    >
+      <img
+        src={image}
+        className="h-48 w-full object-cover rounded-xl mb-3"
+      />
+
+      <p className="text-xs text-primary mb-1">
+        {type}
+      </p>
+
+      <h3 className="font-semibold text-lg mb-2">
+        {title}
+      </h3>
+
+      {/* 🔥 SIGNAL BADGE */}
+      {signalScore >= 3 && (
+        <span className="text-xs text-primary mb-2 block">
+          🔥 Relevant for you
+        </span>
+      )}
+
+      <p className="text-sm text-white/60 mb-3">
+        {description}
+      </p>
+
+      
+
+      {/* GAMES */}
+
+      <div className="flex justify-between items-center">
+
+      {games.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {games.map((game) => (
+            <span
+              key={game.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/games/${game.id}`);
+              }}
+              className="text-xs text-primary hover:underline"
             >
-                <img
-                    src={image}
-                    alt={title}
-                    className="h-20 w-20 rounded-xl object-cover"
-                />
+              🎮 {game.name}
+            </span>
+          ))}
+        </div>
+      )}
+      <button
+  onClick={(e) => {
+    e.stopPropagation();
+    savePost(id);
+  }}
+  className="text-2xl text-yellow-300 hover:text-white transition  "
+>
+  {isSaved(id) ? fullStar : emptyStar}
+</button>
+      </div>
 
-                <div>
-                    <p className="text-xs text-primary">{category}</p>
-
-                    <h3 className="text-base font-semibold leading-snug">
-                        {title}
-                    </h3>
-
-                    <p
-                        onClick={goToGame}
-                        className="text-xs text-primary mt-1 hover:underline cursor-pointer"
-                    >
-                        {game?.name}
-                    </p>
-
-                    <p className="text-sm text-text-muted line-clamp-2 mt-2">
-                        {description}
-                    </p>
-                </div>
-            </article>
-        );
-    }
-
-    return (
-        <article
-            onClick={goToPost}
-            className="group overflow-hidden rounded-3xl border border-border bg-surface transition duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-lg cursor-pointer"
-        >
-            {/* IMAGE */}
-            <div className="relative h-56 overflow-hidden">
-                <img
-                    src={image}
-                    alt={title}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                />
-
-                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
-
-                <div className="absolute bottom-4 left-4">
-                    <p className="mb-2 text-sm text-primary">{category}</p>
-
-                    <h3 className="max-w-md text-2xl font-bold text-white">
-                        {title}
-                    </h3>
-
-                    <p
-                        onClick={goToGame}
-                        className="text-xs text-white/80 mt-1 hover:underline cursor-pointer"
-                    >
-                        {game?.name}
-                    </p>
-                </div>
-            </div>
-
-            {/* CONTENT */}
-            <div className="p-5">
-                <p className="text-text-muted">{description}</p>
-            </div>
-        </article>
-    );
+    </article>
+  );
 }

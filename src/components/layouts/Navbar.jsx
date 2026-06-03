@@ -1,43 +1,64 @@
 import { NavLink } from "react-router-dom";
+import Container from "../ui/Container";
 
 export default function Navbar() {
-  const base =
-    "px-3 py-2 rounded-md text-sm font-medium transition";
-
-  const active =
-    "bg-white text-black";
-  const inactive =
-    "text-gray-300 hover:text-white hover:bg-gray-800";
+  const links = [
+    { to: "/", label: "Pulse" },
+    { to: "/signals", label: "Signals" },
+    { to: "/discover", label: "Discover" },
+    { to: "/profile", label: "Profile" },
+  ];
 
   return (
-    <nav className="flex gap-2 p-4 bg-black border-b border-gray-800">
-      <NavLink
-        to="/"
-        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
-      >
-        Pulse
-      </NavLink>
+    <header className="sticky top-0 z-50 border-b border-border bg-bg/70 backdrop-blur-xl">
+      <Container>
+        <div className="flex h-16 items-center justify-between">
+          
+          {/* LOGO */}
+          <div className="flex items-center gap-2">
+            <div className="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_18px_rgba(124,58,237,0.7)]" />
+            <span className="text-sm font-semibold tracking-tight">
+              RESPawn
+            </span>
+          </div>
 
-      <NavLink
-        to="/community"
-        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
-      >
-        Community
-      </NavLink>
+          {/* NAV */}
+          <nav className="flex items-center gap-1 rounded-full border border-border bg-surface/70 p-1">
+            {links.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `
+                    rounded-full
+                    px-4
+                    py-1.5
+                    text-sm
+                    font-medium
+                    transition-all
+                    duration-200
 
-      <NavLink
-        to="/discover"
-        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
-      >
-        Discover
-      </NavLink>
+                    ${
+                      isActive
+                        ? "bg-white text-black"
+                        : "text-muted hover:text-white"
+                    }
+                  `
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
 
-      <NavLink
-        to="/profile"
-        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
-      >
-        Profile
-      </NavLink>
-    </nav>
+          {/* RIGHT SIDE */}
+          <div className="text-xs text-muted">
+            Gaming culture feed
+          </div>
+
+        </div>
+      </Container>
+    </header>
   );
 }
+

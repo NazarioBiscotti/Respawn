@@ -1,88 +1,95 @@
-  import { useEffect, useState } from "react";
-  import { getPulseFeed } from "../services/api";
-  import { useNavigate } from "react-router-dom";
-  import { searchGames } from "../services/gamesApi";
+import { useEffect, useState } from "react";
+import { getPulseFeed } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { searchGames } from "../services/gamesApi";
+import Container from "../components/ui/Container";
 
-  export default function Discover() {
-    const [query, setQuery] = useState("");
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
+export default function Discover() {
+  const [query, setQuery] = useState("");
+  const [posts, setPosts] = useState([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [gameResults, setGameResults] = useState([]);
 
-    const [gameResults, setGameResults] = useState([]);
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  // 📦 LOAD POSTS
+  useEffect(() => {
+    getPulseFeed().then((data) => {
+      setPosts(data);
+      setInitialLoading(false);
+    });
+  }, []);
 
-    // 📦 LOAD POSTS
-    useEffect(() => {
-      getPulseFeed().then((data) => {
-        setPosts(data);
-        setLoading(false);
-      });
-    }, []);
+  // 🔍 normalize query
+  const q = query.toLowerCase().trim();
+  const hasQuery = q.length > 0;
 
-    // 🔍 normalised query
-    const q = query.toLowerCase().trim();
-    const hasQuery = q.length > 0;
+  // 🎮 GAMES SEARCH (RAWG API)
+  useEffect(() => {
+    if (!q) {
+      setGameResults([]);
+      return;
+    }
 
-    // 🎮 GAMES SEARCH (RAWG API)
-    useEffect(() => {
-      if (!hasQuery) {
-        setGameResults([]);
-        return;
-      }
+    const timeout = setTimeout(() => {
+      searchGames(q).then(setGameResults);
+    }, 300);
 
-      const timeout = setTimeout(() => {
-        searchGames(q).then(setGameResults);
-      }, 300);
-      console.log(gameResults);
-      
-      return () => clearTimeout(timeout);
-    }, [q, hasQuery]);
+    return () => clearTimeout(timeout);
+  }, [q]);
 
-    // 📰 POSTS SEARCH
-    const postsResults = hasQuery
-      ? posts.filter((item) => {
-          return (
-            item.title.toLowerCase().includes(q) ||
-            item.description.toLowerCase().includes(q) ||
-            item.type.toLowerCase().includes(q) ||
-            item.tags?.some((t) => t.toLowerCase().includes(q))
-          );
-        })
-      : [];
+  // 📰 POSTS SEARCH
+  const postsResults = hasQuery
+    ? posts.filter((item) => {
+        return (
+          item.title.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q) ||
+          item.type.toLowerCase().includes(q) ||
+          item.tags?.some((t) => t.toLowerCase().includes(q))
+        );
+      })
+    : [];
 
-    return (
-      <main className=" min-h-screen bg-bg text-text px-6 py-8">
+  return (
+    <Container>
 
-        {/* HEADER */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">
-            Discover
-          </h1>
+      {/* HEADER */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-5 mt-10">
+          Discover
+        </h1>
 
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search games, posts, trends..."
-            className="w-full p-3 rounded-xl bg-surface border border-border outline-none"
-          />
-        </div>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search games, posts, trends..."
+          className="w-full p-3 rounded-xl bg-surface border border-border outline-none"
+        />
+      </div>
 
-        {/* LOADING */}
+      {/* STATES */}
+      <div className="flex justify-evenly">
 
-        <div className="flex m-auto justify-evenly ">
-
-        {loading ? (
-          <div className="text-white/60">Loading...</div>
-        ) : !hasQuery ? (
+        {/* EMPTY STATE */}
+        {!hasQuery && (
           <div className="text-white/40">
             Start typing to explore games and articles...
           </div>
-        ) : (
+        )}
+
+        {/* RESULTS */}
+        {hasQuery && (
           <>
+            {/* NO RESULTS */}
+            {gameResults.length === 0 && postsResults.length === 0 && (
+              <div className="text-white/40">
+                No results found.
+              </div>
+            )}
+
             {/* 🎮 GAMES */}
             {gameResults.length > 0 && (
-              <section className=" w-1/3">
+              <section className="w-1/3">
                 <h2 className="text-white/60 mb-2">
                   Games
                 </h2>
@@ -91,9 +98,7 @@
                   {gameResults.map((game) => (
                     <div
                       key={game.id}
-                      onClick={() =>
-                        navigate(`/games/${game.id}`)
-                      }
+                      onClick={() => navigate(`/games/${game.id}`)}
                       className="p-4 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer transition"
                     >
                       🎮 {game.name}
@@ -104,7 +109,7 @@
             )}
 
             {/* 📰 ARTICLES */}
-            <section className=" w-1/3">
+            <section className="w-1/3">
               <h2 className="text-white/60 mb-2">
                 Articles
               </h2>
@@ -113,9 +118,7 @@
                 {postsResults.map((item) => (
                   <div
                     key={item.id}
-                    onClick={() =>
-                      navigate(`/pulse/${item.id}`)
-                    }
+                    onClick={() => navigate(`/pulse/${item.id}`)}
                     className="p-4 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer transition"
                   >
                     <p className="text-xs text-primary">
@@ -131,7 +134,8 @@
             </section>
           </>
         )}
-        </div>
-      </main>
-    );
-  }
+
+      </div>
+    </Container>
+  );
+} 

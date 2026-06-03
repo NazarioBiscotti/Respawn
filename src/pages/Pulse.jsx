@@ -2,100 +2,87 @@ import { useEffect, useState } from "react";
 import HeroCard from "../components/pulse/HeroCard";
 import PulseCard from "../components/pulse/PulseCard";
 import TrendingSidebar from "../components/pulse/TrendingSidebar";
+import Container from "../components/ui/Container";
+
 import { getPulseFeed } from "../services/api";
-
-
+import { getUserState } from "../services/userStore";
+import { rankFeedBySignals } from "../utils/signalEngine";
+import { buildFeed } from "../utils/feedEngine";
 
 export default function Pulse() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("all");
 
-
-
- 
-
- 
-  
   useEffect(() => {
-    getPulseFeed()
-      .then((res) => {
-        setData(res);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    getPulseFeed().then((res) => {
+      setData(res);
+      setLoading(false);
+    });
   }, []);
 
-  const filteredData =
-    filter === "All"
-      ? data
-      : data.filter((item) => item.type === filter);
+  if (loading) {
+    return <div className="p-6 text-white/50">Loading Pulse...</div>;
+  }
+
+  // 🧠 BASE FEED (all / saved / base logic)
+  const baseFeed = buildFeed(data, filter);
+
+  // 🔥 SIGNALS SOLO PER FOR YOU
+  const feed =
+    filter === "forYou"
+      ? rankFeedBySignals(baseFeed, getUserState().followedGames)
+      : baseFeed;
+
+  const hero = feed[0];
+  const featured = feed.slice(1, 5);
 
   return (
-    <main className="w-2/3 m-auto min-h-screen bg-bg px-6 py-8 text-text">
-      <HeroCard />
+    <main className="min-h-screen py-8">
+      <Container>
 
-      {/* FILTERS */}
-      <div className="mb-6 flex gap-2 flex-wrap">
-        {["All", "review", "trend", "spotlight", "news"].map((t) => (
-          <button
-            key={t}
-            onClick={() => setFilter(t)}
-            className={`px-3 py-1 rounded-full text-sm border transition duration-200 ${
-              filter === t
-                ? "bg-white text-black border-white"
-                : "border-border text-text-muted hover:text-white hover:border-white/40"
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
+        {/* HERO */}
+        {hero && <HeroCard post={hero} />}
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-        <section>
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Latest Pulse
-            </h2>
-          </div>
+        {/* FILTERS */}
+        <div className="mb-8 flex gap-2 flex-wrap">
+          {["all", "forYou", "saved"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setFilter(t)}
+              className={`px-3 py-1 rounded-full text-sm border transition ${
+                filter === t
+                  ? "bg-white text-black"
+                  : "border-border text-white/70"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
 
-          {error && (
-            <div className="rounded-2xl bg-red-500/10 p-4 text-red-400">
-              Error loading feed
-            </div>
-          )}
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
 
-          {loading ? (
-            <div className="space-y-4">
-              <div className="h-40 animate-pulse rounded-2xl bg-surface" />
-              <div className="h-40 animate-pulse rounded-2xl bg-surface" />
-              <div className="h-40 animate-pulse rounded-2xl bg-surface" />
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {filteredData.map((post, index) => (
-                <PulseCard
-                  key={post.id}
-                  id={post.id}
-                  category={post.type}
-                  title={post.title}
-                  description={post.description}
-                  image={post.image}
-                  game={post.game}
-                  variant={index === 0 ? "default" : "compact"}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+          {/* MAIN FEED */}
+          <section>
 
-        <TrendingSidebar />
-      </div>
+            {featured.length > 0 && (
+              <div className="grid gap-4 md:grid-cols-2">
+                {featured.map((post) => (
+                  <PulseCard key={post.id} {...post} />
+                ))}
+              </div>
+            )}
+
+          </section>
+
+          {/* SIDEBAR */}
+          <aside className="space-y-6 lg:sticky lg:top-8">
+            <TrendingSidebar posts={feed} />
+          </aside>
+
+        </div>
+      </Container>
     </main>
   );
 }

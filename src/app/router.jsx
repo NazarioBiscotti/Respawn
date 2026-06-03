@@ -3,7 +3,7 @@ import App from "./App.jsx";
 
 import Pulse from "../pages/Pulse.jsx";
 import PulseDetail from "../pages/PulseDetail.jsx";
-
+import Signals from "../pages/Signals";
 import GamesPage from "../pages/GamePage.jsx";
 import GamePage from "../pages/GamePage.jsx";
 
@@ -45,6 +45,10 @@ export const router = createBrowserRouter([
       {
         path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "signals",
+        element: <Signals />,
       },
     ],
   },

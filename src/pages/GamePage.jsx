@@ -1,188 +1,159 @@
-import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { getGameDetails } from "../services/gamesApi";
 import { getPulseFeed } from "../services/api";
+import { useFollowGame } from "../hooks/useFollowGame";
 
 export default function GamePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { followGame, isFollowing } = useFollowGame();
 
   const [game, setGame] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      const [gameData, pulse] = await Promise.all([
-        getGameDetails(id),
-        getPulseFeed(),
-      ]);
+    Promise.all([getGameDetails(id), getPulseFeed()]).then(
+      ([gameData, feed]) => {
+        setGame(gameData);
 
-      setGame(gameData);
-      setPosts(pulse);
-      setLoading(false);
-    }
+        const relatedPosts = feed.filter((post) =>
+          post.games?.some((game) => game.id === id)
+        );
 
-    load();
+        setPosts(relatedPosts);
+
+        setLoading(false);
+      }
+    );
   }, [id]);
 
-  const relatedPosts = useMemo(() => {
-    return posts.filter((p) => p.gameId === id);
-  }, [posts, id]);
-
-  const tags = useMemo(() => {
-    const allTags = relatedPosts.flatMap((p) => p.tags || []);
-    return [...new Set(allTags)];
-  }, [relatedPosts]);
-
-  if (loading) {
-    return <div className="p-6 text-white/60">Loading game...</div>;
-  }
-
-  if (!game) {
-    return <div className="p-6 text-white">Game not found</div>;
-  }
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (!game) return <div className="p-6">Game not found</div>;
 
   return (
-    <main className="min-h-screen bg-bg text-text">
+    <div className="min-h-screen">
 
-      {/* 🔥 HERO */}
-      <div className="relative h-[420px] overflow-hidden">
+      {/* HERO */}
+      <div className="relative h-105 w-full">
+
+
         <img
           src={game.background_image}
-          className="h-full w-full object-cover scale-105"
+          className="h-full w-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-black/40 to-transparent" />
 
-        <div className="absolute bottom-0 p-8 max-w-5xl">
-          <h1 className="text-4xl font-bold">{game.name}</h1>
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
 
-          <div className="flex gap-2 mt-3 flex-wrap">
-            <span className="px-3 py-1 rounded-full bg-white/10 text-sm">
-              ⭐ {game.rating}
-            </span>
 
-            {game.genres?.slice(0, 5).map((g) => (
-              <span
-                key={g.id}
-                className="px-3 py-1 rounded-full border border-white/10 text-sm"
-              >
-                {g.name}
-              </span>
-            ))}
-          </div>
+        <div className="absolute bottom-0 left-0 w-full p-6">
+          <h1 className="text-4xl font-bold text-white">
+            Pulse around {game.name}
+            <p className="text-white/40 text-sm">
+              {posts.length} discussions in the Pulse
+            </p>
+          </h1>
         </div>
       </div>
 
-      {/* 📦 CONTENT GRID */}
-      <div className="max-w-6xl mx-auto px-6 py-10 grid lg:grid-cols-[2fr_1fr] gap-10">
+      {/* CONTENT */}
+      <div className="max-w-6xl mx-auto px-6 py-10 grid gap-8 lg:grid-cols-[1fr_320px]">
 
-        {/* LEFT */}
-        <div>
+        {/* MAIN */}
+        <section className="space-y-10">
 
-          {/* ABOUT */}
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-3">
+          <button
+  onClick={() => followGame(game.id)}
+  className={`
+    px-4 py-2 rounded-xl border transition
+    ${isFollowing(game.id)
+      ? "bg-white text-black"
+      : "border-white/20 text-white hover:border-white"}
+  `}
+>
+  {isFollowing(game.id) ? "Following" : "Follow game"}
+</button>
+
+          {/* DESCRIPTION */}
+          <div className="p-5 rounded-2xl border border-white/10">
+            <h2 className="text-sm text-white/50 mb-2">
               About
             </h2>
-
-            <p className="text-white/70 leading-relaxed">
+            <p className="text-white/80 leading-relaxed">
               {game.description_raw}
             </p>
-          </section>
+          </div>
 
-          {/* 📰 COMMUNITY */}
-          <section className="mb-10">
+          {/* POSTS */}
+          <div>
             <h2 className="text-xl font-semibold mb-4">
-              Community Pulse ({relatedPosts.length})
+              Active discussion on {game.name}
             </h2>
 
-            {relatedPosts.length === 0 ? (
+            {posts.length === 0 ? (
               <p className="text-white/40">
-                No discussions yet
+                No Pulse activity yet for this game
               </p>
             ) : (
-              <div className="grid gap-4">
-                {relatedPosts.map((post) => (
+              <div className="grid gap-4 md:grid-cols-2">
+                {posts.map((post) => (
                   <div
                     key={post.id}
                     onClick={() => navigate(`/pulse/${post.id}`)}
-                    className="p-4 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer transition"
+                    className="cursor-pointer rounded-xl border border-white/10 hover:border-white/30 overflow-hidden"
                   >
-                    <p className="text-xs text-primary">
-                      {post.type}
-                    </p>
-                    <p className="font-semibold">
-                      {post.title}
-                    </p>
+                    <img
+                      src={post.image}
+                      className="h-32 w-full object-cover"
+                    />
+                    <div className="p-3">
+                      <p className="text-xs text-primary">
+                        {post.type}
+                      </p>
+                      <p className="font-semibold">
+                        {post.title}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
-          </section>
+          </div>
 
-          {/* 🧠 TAGS */}
-          {tags.length > 0 && (
-            <section>
-              <h2 className="text-xl font-semibold mb-3">
-                Trending tags
-              </h2>
+        </section>
 
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 text-sm rounded-full border border-white/10 text-white/70"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
+        {/* SIDEBAR */}
+        <aside className="space-y-6">
 
-        {/* RIGHT SIDEBAR */}
-        <aside>
-
-          {/* 🎬 TRAILER */}
-          {game.clip?.clip && (
-            <section className="mb-6">
-              <h3 className="text-sm text-white/60 mb-2">
-                Trailer
-              </h3>
-
-              <video
-                controls
-                className="rounded-xl w-full"
-                src={game.clip.clip}
-              />
-            </section>
-          )}
-
-          {/* 📊 QUICK STATS */}
-          <section className="p-4 rounded-xl border border-white/10">
-            <h3 className="text-sm text-white/60 mb-3">
-              Quick info
+          <div className="p-5 rounded-2xl border border-white/10">
+            <h3 className="text-sm text-white/50 mb-3">
+              Game Stats
             </h3>
 
             <div className="space-y-2 text-sm text-white/70">
-              <p>Rating: {game.rating}</p>
-              <p>Reviews: {game.ratings_count}</p>
-              <p>Released: {game.released}</p>
+              <p>⭐ Rating: {game.rating}</p>
+              <p>📅 Released: {game.released}</p>
+              <p>🔥 Metacritic: {game.metacritic}</p>
             </div>
-          </section>
+          </div>
 
-          {/* BACK */}
-          <button
-            onClick={() => navigate(-1)}
-            className="mt-6 text-white/60 hover:text-white"
-          >
-            ← Back
-          </button>
+          <div className="p-5 rounded-2xl border border-white/10">
+            <h3 className="text-sm text-white/50 mb-3">
+              Community vibe
+            </h3>
+
+            <div className="space-y-2 text-sm text-white/70">
+              <p>• Meta builds discussion</p>
+              <p>• Co-op strategies</p>
+              <p>• Patch reactions</p>
+            </div>
+          </div>
+
         </aside>
+
       </div>
-    </main>
+    </div>
   );
 }

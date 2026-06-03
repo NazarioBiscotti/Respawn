@@ -1,43 +1,80 @@
-export default function HeroCard() {
-    return (<>
+import Badge from "../ui/Badge";
+import { useNavigate } from "react-router-dom";
 
-        <section className="mb-10">
+export default function HeroCard({ post }) {
+  const navigate = useNavigate();
 
-            <div className="relative overflow-hidden rounded-3xl border border-border">
-                {/* BACKGROUND IMAGE */}
-                
-                 <img
-                    src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1600&auto=format&fit=crop"
-                    alt="Featured game"
-                    className="h-105 w-full object-cover"
-                />
+  if (!post) return null;
 
-                ```
-                {/* OVERLAY */}
-                <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
+  return (
+    <section className="mb-10">
+      <div
+        onClick={() => navigate(`/pulse/${post.id}`)}
+        className="relative overflow-hidden rounded-3xl border border-border cursor-pointer group"
+      >
 
-                {/* CONTENT */}
-                <div className="absolute bottom-0 left-0 p-8">
-                    <p className="mb-3 text-sm text-primary">
-                        Trending right now
-                    </p>
+        {/* IMAGE */}
+        <img
+          src={post.image}
+          alt={post.title}
+          className="h-[420px] w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+        />
 
-                    <h1 className="mb-4 max-w-3xl text-5xl font-bold tracking-tight text-white">
-                        Elden Ring: Nightreign
-                    </h1>
+        {/* OVERLAY */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-                    <p className="max-w-2xl text-gray-300">
-                        Players are rediscovering co-op builds and sharing insane boss
-                        clips after the latest expansion drop.
-                    </p>
+        {/* CONTENT */}
+        <div className="absolute bottom-0 left-0 p-8">
 
-                    <button className="mt-6 rounded-xl bg-primary px-5 py-3 font-medium text-white transition hover:bg-primary-hover">
-                        Join the discussion
-                    </button>
-                </div>
-            </div>
-        </section>
-        ```
-    </>
-    );
+          {/* TAGS */}
+          <div className="mb-3 flex flex-wrap gap-2">
+            <Badge>{post.type}</Badge>
+
+            {post.tags?.slice(0, 2).map((tag) => (
+              <Badge key={tag}>{tag}</Badge>
+            ))}
+          </div>
+
+          {/* TITLE */}
+          <h1 className="mb-3 max-w-3xl text-4xl md:text-5xl font-bold tracking-tight text-white">
+            {post.title}
+          </h1>
+
+          {/* DESCRIPTION */}
+          <p className="max-w-2xl text-sm md:text-base text-gray-300">
+            {post.description}
+          </p>
+
+ 
+         
+
+          {/* CTA */}
+        <div className="mt-6 flex items-center gap-3">
+  
+  <div className="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-medium text-white">
+    Read article
+  </div>
+
+{post.games?.slice(0, 2).map((game) => (
+  <span
+    key={game.id}
+    onClick={(e) => {
+      e.stopPropagation(); // 🔥 QUESTO È IL FIX se non c'è il click dato che è sull'intera card ne attiva 2, questo li separa
+      navigate(`/games/${game.id}`);
+    }}
+    className="
+      rounded-2xl border border-border bg-surface p-4 cursor-pointer
+      hover:border-primary hover:bg-white/5 transition
+    "
+  >
+    🎮 {game.name}
+  </span>
+))}
+
+</div>
+
+        </div>
+      </div>
+    </section>
+  );
 }
