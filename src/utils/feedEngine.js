@@ -1,20 +1,12 @@
-import { rankFeedBySignals } from "./signalEngine";
-import { getUserState } from "../services/userStore";
+  import { rankFeedBySignals } from "./signalEngine";
 
-export function buildFeed(posts, mode = "all") {
-  const state = getUserState();
 
-  switch (mode) {
-    case "forYou":
-      return rankFeedBySignals(posts, state.followedGames);
+  export function buildFeed(posts, mode = "all", savedPosts = []) {
+    switch (mode) {
+      case "saved":
+        return posts.filter((p) => savedPosts.includes(p.id));
 
-    case "saved":
-      return posts.filter((p) =>
-        state.savedPosts.includes(p.id)
-      );
-
-    case "all":
-    default:
-      return posts;
+      default:
+        return posts;
+    }
   }
-}

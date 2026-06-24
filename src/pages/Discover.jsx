@@ -51,10 +51,10 @@ export default function Discover() {
     : [];
 
   return (
-    <Container>
+    <div className="w-full md:w-1/3 md:m-auto">
 
       {/* HEADER */}
-      <div className="mb-8">
+      <div className="mb-8  w-full p-5 flex-col items-center">
         <h1 className="text-3xl font-bold mb-5 mt-10">
           Discover
         </h1>
@@ -63,12 +63,12 @@ export default function Discover() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search games, posts, trends..."
-          className="w-full p-3 rounded-xl bg-surface border border-border outline-none"
+          className="w-full  p-3 rounded-xl bg-surface border border-border outline-none"
         />
       </div>
 
       {/* STATES */}
-      <div className="flex justify-evenly">
+      <div className="flex flex-col md:flex-row md:justify-evenly p-3">
 
         {/* EMPTY STATE */}
         {!hasQuery && (
@@ -89,7 +89,7 @@ export default function Discover() {
 
             {/* 🎮 GAMES */}
             {gameResults.length > 0 && (
-              <section className="w-1/3">
+              <section className="md:w-1/3 w-full">
                 <h2 className="text-white/60 mb-2">
                   Games
                 </h2>
@@ -109,12 +109,12 @@ export default function Discover() {
             )}
 
             {/* 📰 ARTICLES */}
-            <section className="w-1/3">
-              <h2 className="text-white/60 mb-2">
+            <section className="md:w-1/3 w-full">
+              <h2 className="text-white/60 md:mb-2 md:mt-0 my-10">
                 Articles
               </h2>
 
-              <div className="grid gap-4">
+              <div className="md:grid md:gap-4 w-full ">
                 {postsResults.map((item) => (
                   <div
                     key={item.id}
@@ -136,6 +136,6 @@ export default function Discover() {
         )}
 
       </div>
-    </Container>
+    </div>
   );
 } 

@@ -1,55 +1,47 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+
 import { getPulseFeed } from "../services/api";
-import { toggleSavePost, getUserState } from "../services/userStore";
+import { useUser } from "../context/UserContext";
+import { useToggleActions } from "../hooks/useToggleActions";
 
 export default function PulseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [post, setPost] = useState(null);
-  const [related, setRelated] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saved, setSaved] = useState(false);
+  const { user, savedPosts } = useUser();
+  const { savePost } = useToggleActions();
 
-  useEffect(() => {
-    getPulseFeed().then((data) => {
-      const found = data.find(
-        (item) => String(item.id) === String(id)
-      );
+    const { data: feed = [], isLoading } = useQuery({
+    queryKey: ["pulse_feed"],
+    queryFn: getPulseFeed,
+  });
 
-      if (!found) {
-        setLoading(false);
-        return;
-      }
+    const post = feed.find(
+    (item) => String(item.id) === String(id)
+  );
 
-      setPost(found);
+  const related = post
+  ? feed.filter(
+      (item) =>
+        item.id !== post.id &&
+        item.games?.some((g) =>
+          post.games?.some((pg) => pg.id === g.id)
+        )
+    )
+  : [];
 
-      const relatedPosts = data.filter(
-        (item) =>
-          item.id !== found.id &&
-          item.games?.some((g) =>
-            found.games?.some((fg) => fg.id === g.id)
-          )
-      );
+    if (isLoading) {
+    return <div className="p-6 text-white/50">Loading...</div>;
+  }
 
-      setRelated(relatedPosts);
-      setLoading(false);
-    });
-  }, [id]);
+  if (!post) {
+    return <div className="p-6 text-white/50">Pulse not found</div>;
+  }
 
-  // sync saved state (da localStorage)
-  useEffect(() => {
-    if (!post) return;
+    const isSaved = (savedPosts ?? []).includes(post.id);
 
-    const state = getUserState();
-    setSaved(state.savedPosts.includes(post.id));
-  }, [post]);
-
-  if (loading) return <div className="p-6">Loading...</div>;
-  if (!post) return <div className="p-6">Pulse not found</div>;
-
-  return (
+      return (
     <div className="max-w-5xl mx-auto px-6 py-10">
 
       {/* HERO */}
@@ -76,23 +68,20 @@ export default function PulseDetail() {
           {post.description}
         </p>
 
-        {/* ACTIONS */}
+        {/* ACTION */}
         <div className="flex items-center gap-3 pt-2">
 
           <button
-            onClick={() => {
-              const updated = toggleSavePost(post.id);
-              setSaved(updated.savedPosts.includes(post.id));
-            }}
+            onClick={() => savePost(post.id)}
             className={`
               px-4 py-2 rounded-xl border transition
-              ${saved
+              ${isSaved
                 ? "bg-primary text-black border-primary"
                 : "border-white/10 hover:border-white/30 text-white"
               }
             `}
           >
-            {saved ? "Saved ✓" : "Save article"}
+            {isSaved ? "Saved ✓" : "Save article"}
           </button>
 
         </div>

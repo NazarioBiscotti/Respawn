@@ -1,50 +1,75 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import HeroCard from "../components/pulse/HeroCard";
 import PulseCard from "../components/pulse/PulseCard";
 import TrendingSidebar from "../components/pulse/TrendingSidebar";
 import Container from "../components/ui/Container";
 
 import { getPulseFeed } from "../services/api";
-import { getUserState } from "../services/userStore";
-import { rankFeedBySignals } from "../utils/signalEngine";
+import { useUser } from "../context/UserContext";
+
+import { useQuery } from "@tanstack/react-query";
+
+import { useSavedPosts } from "../hooks/useSavedPosts";
+import { useFollowedGames } from "../hooks/useFollowedGames";
+
 import { buildFeed } from "../utils/feedEngine";
+import { rankFeedBySignals } from "../utils/signalEngine";
+
 
 export default function Pulse() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
-  useEffect(() => {
-    getPulseFeed().then((res) => {
-      setData(res);
-      setLoading(false);
-    });
-  }, []);
 
-  if (loading) {
-    return <div className="p-6 text-white/50">Loading Pulse...</div>;
+  
+  const { user, loading: userLoading } = useUser();
+
+  // 📦 React Query: FEED
+  const {
+    data: feedData = [],
+    isLoading: feedLoading,
+  } = useQuery({
+    queryKey: ["pulse_feed"],
+    queryFn: getPulseFeed,
+  });
+
+  // 📦 React Query: saved posts
+  const { data: savedPosts = [] } = useSavedPosts(user?.id);
+
+  // 📦 React Query: followed games
+  const { data: followedGames = [] } = useFollowedGames(user?.id);
+
+
+    if (feedLoading || userLoading) {
+    return (
+      <div className="p-6 text-white/50">
+        Loading Pulse...
+      </div>
+    );
   }
 
-  // 🧠 BASE FEED (all / saved / base logic)
-  const baseFeed = buildFeed(data, filter);
 
-  // 🔥 SIGNALS SOLO PER FOR YOU
+
+
+
+    const baseFeed = buildFeed(feedData, filter, savedPosts);
+
   const feed =
     filter === "forYou"
-      ? rankFeedBySignals(baseFeed, getUserState().followedGames)
+      ? rankFeedBySignals(baseFeed, followedGames, savedPosts)
       : baseFeed;
 
   const hero = feed[0];
   const featured = feed.slice(1, 5);
 
-  return (
-    <main className="min-h-screen py-8">
-      <Container>
 
-        {/* HERO */}
+    return (
+    <main className="min-h-screen py-8">
+
+     
+      <Container>
+ 
         {hero && <HeroCard post={hero} />}
 
-        {/* FILTERS */}
         <div className="mb-8 flex gap-2 flex-wrap">
           {["all", "forYou", "saved"].map((t) => (
             <button
@@ -63,9 +88,7 @@ export default function Pulse() {
 
         <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
 
-          {/* MAIN FEED */}
           <section>
-
             {featured.length > 0 && (
               <div className="grid gap-4 md:grid-cols-2">
                 {featured.map((post) => (
@@ -73,10 +96,8 @@ export default function Pulse() {
                 ))}
               </div>
             )}
-
           </section>
 
-          {/* SIDEBAR */}
           <aside className="space-y-6 lg:sticky lg:top-8">
             <TrendingSidebar posts={feed} />
           </aside>

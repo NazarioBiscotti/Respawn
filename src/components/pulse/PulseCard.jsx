@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useSavePost } from "../../hooks/useSavePost";
+import { useToggleActions } from "../../hooks/useToggleActions";
+import { useUser } from "../../context/UserContext";
+import { useState } from "react";
 
 export default function PulseCard({
   id,
@@ -9,12 +11,17 @@ export default function PulseCard({
   type,
   games = [],
   variant = "review",
-  signalScore, // ✅ IMPORTANTISSIMO
+  signalScore,
 }) {
   const navigate = useNavigate();
-  const { savePost, isSaved } = useSavePost();
-  const emptyStar = <i className="fa-regular fa-star"></i>
-  const fullStar = <i className="fa-solid fa-star"></i>
+  const { user } = useUser();
+  const { savePost } = useToggleActions();
+
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const emptyStar = <i className="fa-regular fa-star"></i>;
+  const fullStar = <i className="fa-solid fa-star"></i>;
 
   const sizeStyles =
     variant === "spotlight"
@@ -23,7 +30,27 @@ export default function PulseCard({
       ? "opacity-95"
       : "";
 
+  const handleSave = async (e) => {
+    e.stopPropagation();
 
+    if (!user || saving) return;
+
+    setSaving(true);
+    setSaved((prev) => !prev); // ⚡ optimistic UI
+
+    const res = await savePost(id);
+
+    if (res?.error) {
+      setSaved((prev) => !prev); // rollback
+    }
+
+    setSaving(false);
+  };
+
+  const handleGameClick = (e, gameId) => {
+    e.stopPropagation();
+    navigate(`/games/${gameId}`);
+  };
 
   return (
     <article
@@ -37,15 +64,12 @@ export default function PulseCard({
       <img
         src={image}
         className="h-48 w-full object-cover rounded-xl mb-3"
+        alt={title}
       />
 
-      <p className="text-xs text-primary mb-1">
-        {type}
-      </p>
+      <p className="text-xs text-primary mb-1">{type}</p>
 
-      <h3 className="font-semibold text-lg mb-2">
-        {title}
-      </h3>
+      <h3 className="font-semibold text-lg mb-2">{title}</h3>
 
       {/* 🔥 SIGNAL BADGE */}
       {signalScore >= 3 && (
@@ -54,43 +78,37 @@ export default function PulseCard({
         </span>
       )}
 
-      <p className="text-sm text-white/60 mb-3">
-        {description}
-      </p>
+      <p className="text-sm text-white/60 mb-3">{description}</p>
 
-      
-
-      {/* GAMES */}
-
+      {/* FOOTER */}
       <div className="flex justify-between items-center">
+        {/* GAMES */}
+        {games.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {games.map((game) => (
+              <span
+                key={game.id}
+                onClick={(e) => handleGameClick(e, game.id)}
+                className="text-xs text-primary hover:underline"
+              >
+                🎮 {game.name}
+              </span>
+            ))}
+          </div>
+        )}
 
-      {games.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {games.map((game) => (
-            <span
-              key={game.id}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/games/${game.id}`);
-              }}
-              className="text-xs text-primary hover:underline"
-            >
-              🎮 {game.name}
-            </span>
-          ))}
-        </div>
-      )}
-      <button
-  onClick={(e) => {
-    e.stopPropagation();
-    savePost(id);
-  }}
-  className="text-2xl text-yellow-300 hover:text-white transition  "
->
-  {isSaved(id) ? fullStar : emptyStar}
-</button>
+        {/* SAVE BUTTON */}
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className={`
+            text-2xl transition
+            ${saved ? "text-yellow-300" : "text-white/40 hover:text-white"}
+          `}
+        >
+          {saved ? fullStar : emptyStar}
+        </button>
       </div>
-
     </article>
   );
 }

@@ -1,29 +1,30 @@
-import { useEffect, useState } from "react";
 import Container from "../components/ui/Container";
-import { getUserState } from "../services/userStore";
+import { useUser } from "../context/UserContext";
+
+import { useQuery } from "@tanstack/react-query";
+
 import { getPulseFeed } from "../services/api";
 import { buildSignals } from "../utils/signalEngine";
 
+import { useSavedPosts } from "../hooks/useSavedPosts";
+import { useFollowedGames } from "../hooks/useFollowedGames";
+
 export default function Signals() {
-  const [state, setState] = useState({
-    followedGames: [],
-    savedPosts: [],
+  const { user } = useUser();
+
+  const {
+    data: posts = [],
+    isLoading,
+  } = useQuery({
+    queryKey: ["pulse_feed"],
+    queryFn: getPulseFeed,
   });
 
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: savedPosts = [] } = useSavedPosts(user?.id);
+  const { data: followedGames = [] } = useFollowedGames(user?.id);
 
-  useEffect(() => {
-    const userState = getUserState();
-    setState(userState);
 
-    getPulseFeed().then((data) => {
-      setPosts(data);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
+    if (isLoading) {
     return (
       <div className="p-6 text-white/50">
         Loading signals...
@@ -31,10 +32,9 @@ export default function Signals() {
     );
   }
 
-  // 🧠 SIGNAL ENGINE (PURE LOGIC)
-  const topGames = buildSignals(posts, state.followedGames);
+    const topGames = buildSignals(posts, followedGames);
 
-  return (
+      return (
     <main className="py-10">
       <Container>
 
@@ -48,13 +48,13 @@ export default function Signals() {
             🎮 Followed Games
           </h2>
 
-          {state.followedGames.length === 0 ? (
+          {followedGames.length === 0 ? (
             <p className="text-white/40">
               No games followed yet
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {state.followedGames.map((id) => (
+              {followedGames.map((id) => (
                 <span
                   key={id}
                   className="px-3 py-1 rounded-full border border-white/10 bg-white/5"
@@ -72,14 +72,14 @@ export default function Signals() {
             ⭐ Saved Posts
           </h2>
 
-          {state.savedPosts.length === 0 ? (
+          {savedPosts.length === 0 ? (
             <p className="text-white/40">
               No saved articles yet
             </p>
           ) : (
             <div className="grid gap-3 md:grid-cols-2">
               {posts
-                .filter((p) => state.savedPosts.includes(p.id))
+                .filter((p) => savedPosts.includes(p.id))
                 .map((post) => (
                   <div
                     key={post.id}

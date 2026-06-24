@@ -1,56 +1,65 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+
+import { useUser } from "../context/UserContext";
+import { useToggleActions } from "../hooks/useToggleActions";
+
 import { getGameDetails } from "../services/gamesApi";
 import { getPulseFeed } from "../services/api";
-import { useFollowGame } from "../hooks/useFollowGame";
 
 export default function GamePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { followGame, isFollowing } = useFollowGame();
 
-  const [game, setGame] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user, followedGames = [] } = useUser();
+  const { followGame } = useToggleActions();
 
-  useEffect(() => {
-    Promise.all([getGameDetails(id), getPulseFeed()]).then(
-      ([gameData, feed]) => {
-        setGame(gameData);
+  // 🎮 GAME DETAILS
+  const { data: game, isLoading: gameLoading } = useQuery({
+    queryKey: ["game", id],
+    queryFn: () => getGameDetails(id),
+    enabled: !!id,
+  });
 
-        const relatedPosts = feed.filter((post) =>
-          post.games?.some((game) => game.id === id)
-        );
+  // 📰 FEED (riuso globale)
+  const { data: feed = [], isLoading: feedLoading } = useQuery({
+    queryKey: ["pulse_feed"],
+    queryFn: getPulseFeed,
+  });
 
-        setPosts(relatedPosts);
+  // 🧠 DERIVED DATA (NO STATE)
+  const posts = feed.filter((post) =>
+    post.games?.some((game) => game.id === id)
+  );
 
-        setLoading(false);
-      }
-    );
-  }, [id]);
+  // ⏳ LOADING
+  if (gameLoading || feedLoading) {
+    return <div className="p-6">Loading...</div>;
+  }
 
-  if (loading) return <div className="p-6">Loading...</div>;
-  if (!game) return <div className="p-6">Game not found</div>;
+  // ❌ GAME NOT FOUND
+  if (!game) {
+    return <div className="p-6">Game not found</div>;
+  }
+
+  const isFollowing = followedGames.includes(game.id);
 
   return (
     <div className="min-h-screen">
 
       {/* HERO */}
       <div className="relative h-105 w-full">
-
-
         <img
           src={game.background_image}
           className="h-full w-full object-cover"
         />
 
-
         <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
-
 
         <div className="absolute bottom-0 left-0 w-full p-6">
           <h1 className="text-4xl font-bold text-white">
             Pulse around {game.name}
+
             <p className="text-white/40 text-sm">
               {posts.length} discussions in the Pulse
             </p>
@@ -64,17 +73,18 @@ export default function GamePage() {
         {/* MAIN */}
         <section className="space-y-10">
 
+          {/* FOLLOW BUTTON */}
           <button
-  onClick={() => followGame(game.id)}
-  className={`
-    px-4 py-2 rounded-xl border transition
-    ${isFollowing(game.id)
-      ? "bg-white text-black"
-      : "border-white/20 text-white hover:border-white"}
-  `}
->
-  {isFollowing(game.id) ? "Following" : "Follow game"}
-</button>
+            onClick={() => followGame(game.id)}
+            className={`
+              px-4 py-2 rounded-xl border transition
+              ${isFollowing
+                ? "bg-white text-black"
+                : "border-white/20 text-white hover:border-white"}
+            `}
+          >
+            {isFollowing ? "Following" : "Follow game"}
+          </button>
 
           {/* DESCRIPTION */}
           <div className="p-5 rounded-2xl border border-white/10">
@@ -108,6 +118,7 @@ export default function GamePage() {
                       src={post.image}
                       className="h-32 w-full object-cover"
                     />
+
                     <div className="p-3">
                       <p className="text-xs text-primary">
                         {post.type}

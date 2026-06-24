@@ -17,7 +17,7 @@ export default function HeroCard({ post }) {
         <img
           src={post.image}
           alt={post.title}
-          className="h-[420px] w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+          className="h-105 w-full object-cover transition duration-500 group-hover:scale-[1.02]"
         />
 
         {/* OVERLAY */}

@@ -4,10 +4,12 @@ import App from "./App.jsx";
 import Pulse from "../pages/Pulse.jsx";
 import PulseDetail from "../pages/PulseDetail.jsx";
 import Signals from "../pages/Signals";
-import GamesPage from "../pages/GamePage.jsx";
-import GamePage from "../pages/GamePage.jsx";
 
-import Community from "../pages/Community.jsx";
+import GamePage from "../pages/GamePage.jsx";
+import AuthPage from "../pages/AuthPage.jsx";
+import { Protected } from "../components/ui/Protected.jsx";
+
+
 import Discover from "../pages/Discover.jsx";
 import Profile from "../pages/Profile.jsx";
 
@@ -27,7 +29,7 @@ export const router = createBrowserRouter([
 
       {
         path: "games",
-        element: <GamesPage />,
+        element: <GamePage />,
       },
       {
         path: "games/:id",
@@ -38,17 +40,27 @@ export const router = createBrowserRouter([
         path: "discover",
         element: <Discover />,
       },
-      {
-        path: "community",
-        element: <Community />,
-      },
+
       {
         path: "profile",
-        element: <Profile />,
+        element: (<Protected>
+          <Profile />
+        </Protected>)
       },
+
+
       {
         path: "signals",
         element: <Signals />,
+      },
+
+      {
+        path: "auth",
+        element: <AuthPage />
+      },
+      {
+        path: "register",
+        element: <AuthPage />
       },
     ],
   },

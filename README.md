@@ -1,16 +1,95 @@
-# React + Vite
+# 🎮 Respawn
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Respawn is a gaming-focused content platform where users can discover, save, and follow game-related posts.  
+The feed adapts dynamically based on user interactions, creating a personalized experience.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Features
 
-## React Compiler
+- 🔐 Authentication (Supabase)
+- 📰 Dynamic feed of gaming content
+- ⭐ Save posts system
+- 🎮 Follow games system
+- 🧠 Personalized “Signals” ranking system
+- 📄 Post detail pages with related content
+- ⚡ Real-time user state via React Context
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🧠 Key Concepts
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+This project focuses on building a **real product-like architecture**, not just UI components:
+
+- Centralized user state using React Context
+- Supabase as single source of truth (auth + database)
+- Row Level Security for secure user data access
+- Feed ranking based on user interactions
+- Clean separation between UI and data logic
+
+---
+
+## 🛠 Tech Stack
+
+- React
+- React Router
+- Supabase
+- JavaScript (ES6+)
+- Tailwind CSS
+
+---
+
+## 🧩 Data Model
+
+The app uses three main tables:
+
+- `profiles`
+- `saved_posts`
+- `followed_games`
+
+All tables are secured using Row Level Security (RLS).
+
+---
+
+## ⚙️ Architecture Overview
+
+- `UserContext` → manages authenticated user and related data
+- `services/` → Supabase API calls
+- `utils/` → feed ranking and signal logic
+- `pages/` → main application views
+- `components/` → reusable UI components
+
+---
+
+## 🧠 Signal System
+
+The “Signals” section ranks content based on:
+
+- followed games
+- saved posts
+- interaction signals
+
+This creates a lightweight personalization system.
+
+---
+
+## 🎯 Project Goal
+
+The goal of Respawn was to simulate a real-world product workflow:
+
+- authentication
+- persistent user data
+- dynamic content feed
+- personalized ranking logic
+
+---
+
+## 📌 Status
+
+Project completed (MVP stage – portfolio ready)
+
+---
+
+## 👤 Author
+
+Junior Frontend Developer
