@@ -27,8 +27,8 @@ export default function PulseCard({
     variant === "spotlight"
       ? "md:col-span-2"
       : variant === "trend"
-      ? "opacity-95"
-      : "";
+        ? "opacity-95"
+        : "";
 
   const handleSave = async (e) => {
     e.stopPropagation();
@@ -36,12 +36,12 @@ export default function PulseCard({
     if (!user || saving) return;
 
     setSaving(true);
-    setSaved((prev) => !prev); // ⚡ optimistic UI
+    setSaved((prev) => !prev);
 
     const res = await savePost(id);
 
     if (res?.error) {
-      setSaved((prev) => !prev); // rollback
+      setSaved((prev) => !prev);
     }
 
     setSaving(false);
@@ -71,7 +71,7 @@ export default function PulseCard({
 
       <h3 className="font-semibold text-lg mb-2">{title}</h3>
 
-      {/* 🔥 SIGNAL BADGE */}
+      {/*  SIGNAL BADGE */}
       {signalScore >= 3 && (
         <span className="text-xs text-primary mb-2 block">
           🔥 Relevant for you
@@ -91,7 +91,7 @@ export default function PulseCard({
                 onClick={(e) => handleGameClick(e, game.id)}
                 className="text-xs text-primary hover:underline"
               >
-                🎮 {game.name}
+                {game.name}
               </span>
             ))}
           </div>

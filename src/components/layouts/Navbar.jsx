@@ -70,9 +70,6 @@ export default function Navbar() {
 
               </div>
 
-          {/* {loading ? null : user ? (
-              
-            )} */}
 
         </div>
       </div>

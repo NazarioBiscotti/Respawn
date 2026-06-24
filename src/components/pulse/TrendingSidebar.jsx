@@ -3,7 +3,7 @@ import { useMemo } from "react";
 
 export default function TrendingSidebar({ posts = [] }) {
 
-  // 🎮 TOP GAMES
+  //  TOP GAMES
   const topGames = useMemo(() => {
     const gameCount = {};
 
@@ -25,7 +25,7 @@ export default function TrendingSidebar({ posts = [] }) {
       .slice(0, 5);
   }, [posts]);
 
-  // 🏷️ TOP TAGS
+  //  TOP TAGS
   const topTags = useMemo(() => {
     const tagCount = {};
 
@@ -76,7 +76,7 @@ export default function TrendingSidebar({ posts = [] }) {
         </div>
       </Card>
 
-      {/* 🏷️ TRENDING TAGS */}
+      {/*  TRENDING TAGS */}
       <Card className="p-5">
         <h3 className="mb-4 text-sm font-semibold text-white/60">
           Trending Tags

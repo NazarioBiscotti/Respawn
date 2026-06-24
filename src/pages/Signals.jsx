@@ -42,7 +42,7 @@ export default function Signals() {
           Signals
         </h1>
 
-        {/* 🎮 FOLLOWED GAMES */}
+        {/*  FOLLOWED GAMES */}
         <section className="mb-10">
           <h2 className="text-white/60 mb-3">
             🎮 Followed Games
@@ -59,14 +59,14 @@ export default function Signals() {
                   key={id}
                   className="px-3 py-1 rounded-full border border-white/10 bg-white/5"
                 >
-                  🎮 {id}
+                   {id}
                 </span>
               ))}
             </div>
           )}
         </section>
 
-        {/* ⭐ SAVED POSTS */}
+        {/*  SAVED POSTS */}
         <section className="mb-10">
           <h2 className="text-white/60 mb-3">
             ⭐ Saved Posts
@@ -97,7 +97,7 @@ export default function Signals() {
           )}
         </section>
 
-        {/* 🧠 TOP SIGNALS */}
+        {/*  TOP SIGNALS */}
         <section className="mb-10">
           <h2 className="text-white/60 mb-3">
             🧠 Top Signals

@@ -101,7 +101,7 @@ export default function PulseDetail() {
                   onClick={() => navigate(`/games/${game.id}`)}
                   className="cursor-pointer text-primary hover:underline"
                 >
-                  🎮 {game.name}
+                  {game.name}
                 </span>
               ))}
             </div>

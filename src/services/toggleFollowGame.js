@@ -10,7 +10,7 @@ export async function toggleFollowGame(userId, gameId) {
 
   if (error) return { error };
 
-  // ❌ already following → unfollow
+  // already following → unfollow
   if (data) {
     const res = await supabase
       .from("followed_games")
@@ -21,7 +21,7 @@ export async function toggleFollowGame(userId, gameId) {
     return { action: "unfollowed", ...res };
   }
 
-  // ✅ follow
+  // follow
   const res = await supabase.from("followed_games").insert({
     user_id: userId,
     game_id: gameId,

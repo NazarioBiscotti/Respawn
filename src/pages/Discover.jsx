@@ -12,7 +12,7 @@ export default function Discover() {
 
   const navigate = useNavigate();
 
-  // 📦 LOAD POSTS
+  //  LOAD POSTS
   useEffect(() => {
     getPulseFeed().then((data) => {
       setPosts(data);
@@ -20,11 +20,11 @@ export default function Discover() {
     });
   }, []);
 
-  // 🔍 normalize query
+
   const q = query.toLowerCase().trim();
   const hasQuery = q.length > 0;
 
-  // 🎮 GAMES SEARCH (RAWG API)
+  //  GAMES SEARCH (RAWG API)
   useEffect(() => {
     if (!q) {
       setGameResults([]);
@@ -38,16 +38,16 @@ export default function Discover() {
     return () => clearTimeout(timeout);
   }, [q]);
 
-  // 📰 POSTS SEARCH
+  //  POSTS SEARCH
   const postsResults = hasQuery
     ? posts.filter((item) => {
-        return (
-          item.title.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q) ||
-          item.type.toLowerCase().includes(q) ||
-          item.tags?.some((t) => t.toLowerCase().includes(q))
-        );
-      })
+      return (
+        item.title.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.type.toLowerCase().includes(q) ||
+        item.tags?.some((t) => t.toLowerCase().includes(q))
+      );
+    })
     : [];
 
   return (
@@ -87,7 +87,7 @@ export default function Discover() {
               </div>
             )}
 
-            {/* 🎮 GAMES */}
+            {/*  GAMES */}
             {gameResults.length > 0 && (
               <section className="md:w-1/3 w-full">
                 <h2 className="text-white/60 mb-2">
@@ -101,14 +101,14 @@ export default function Discover() {
                       onClick={() => navigate(`/games/${game.id}`)}
                       className="p-4 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer transition"
                     >
-                      🎮 {game.name}
+                      {game.name}
                     </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {/* 📰 ARTICLES */}
+            {/*  ARTICLES */}
             <section className="md:w-1/3 w-full">
               <h2 className="text-white/60 md:mb-2 md:mt-0 my-10">
                 Articles

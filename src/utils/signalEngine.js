@@ -5,19 +5,18 @@ export function rankFeedBySignals(posts, followedGames = [], savedPosts = []) {
     .map((post) => {
       let score = 0;
 
-      // 🎮 1. giochi seguiti
       post.games?.forEach((g) => {
         if (followedGames.includes(g.id)) {
           score += 5;
         }
       });
 
-      // ⭐ 2. post salvati
+  
       if (savedSet.has(post.id)) {
         score += 10;
       }
 
-      // ⏳ 3. freschezza contenuto (semplice)
+      
       const idFactor = post.id; 
       score += 1 / idFactor; // solo per dare leggero boost ai nuovi
 

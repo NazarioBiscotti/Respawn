@@ -1,29 +1,29 @@
 import { useState } from "react";
+
+// VIEWS
 import HeroCard from "../components/pulse/HeroCard";
 import PulseCard from "../components/pulse/PulseCard";
 import TrendingSidebar from "../components/pulse/TrendingSidebar";
 import Container from "../components/ui/Container";
 
+
+// HOOKS
 import { getPulseFeed } from "../services/api";
 import { useUser } from "../context/UserContext";
-
 import { useQuery } from "@tanstack/react-query";
-
 import { useSavedPosts } from "../hooks/useSavedPosts";
 import { useFollowedGames } from "../hooks/useFollowedGames";
-
 import { buildFeed } from "../utils/feedEngine";
 import { rankFeedBySignals } from "../utils/signalEngine";
 
 
+
 export default function Pulse() {
+
   const [filter, setFilter] = useState("all");
-
-
-  
   const { user, loading: userLoading } = useUser();
 
-  // 📦 React Query: FEED
+  //  React Query: FEED
   const {
     data: feedData = [],
     isLoading: feedLoading,
@@ -32,14 +32,14 @@ export default function Pulse() {
     queryFn: getPulseFeed,
   });
 
-  // 📦 React Query: saved posts
+  // React Query: saved posts
   const { data: savedPosts = [] } = useSavedPosts(user?.id);
 
-  // 📦 React Query: followed games
+  //  React Query: followed games
   const { data: followedGames = [] } = useFollowedGames(user?.id);
 
 
-    if (feedLoading || userLoading) {
+  if (feedLoading || userLoading) {
     return (
       <div className="p-6 text-white/50">
         Loading Pulse...
@@ -48,10 +48,7 @@ export default function Pulse() {
   }
 
 
-
-
-
-    const baseFeed = buildFeed(feedData, filter, savedPosts);
+  const baseFeed = buildFeed(feedData, filter, savedPosts);
 
   const feed =
     filter === "forYou"
@@ -62,12 +59,14 @@ export default function Pulse() {
   const featured = feed.slice(1, 5);
 
 
-    return (
+  return (
     <main className="min-h-screen py-8">
 
-     
+
       <Container>
- 
+
+
+
         {hero && <HeroCard post={hero} />}
 
         <div className="mb-8 flex gap-2 flex-wrap">
@@ -75,11 +74,10 @@ export default function Pulse() {
             <button
               key={t}
               onClick={() => setFilter(t)}
-              className={`px-3 py-1 rounded-full text-sm border transition ${
-                filter === t
+              className={`px-3 py-1 rounded-full text-sm border transition ${filter === t
                   ? "bg-white text-black"
                   : "border-border text-white/70"
-              }`}
+                }`}
             >
               {t}
             </button>

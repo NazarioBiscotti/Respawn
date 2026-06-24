@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 
-// 👤 get profile
+//  get profile
 export async function getProfile(userId) {
   if (!userId) return { data: null };
 
@@ -8,12 +8,12 @@ export async function getProfile(userId) {
     .from("profiles")
     .select("*")
     .eq("id", userId)
-    .maybeSingle(); // 🔥 QUESTO È LA CHIAVE
+    .maybeSingle(); 
 
   return { data, error };
 }
 
-// 🎮 get followed games
+//  get followed games
 export async function getFollowedGames(userId) {
   const { data } = await supabase
     .from("followed_games")
@@ -23,7 +23,7 @@ export async function getFollowedGames(userId) {
   return data?.map((g) => g.game_id) || [];
 }
 
-// ⭐ get saved posts
+//  get saved posts
 export async function getSavedPosts(userId) {
   const { data } = await supabase
     .from("saved_posts")

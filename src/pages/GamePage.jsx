@@ -1,9 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-
 import { useUser } from "../context/UserContext";
 import { useToggleActions } from "../hooks/useToggleActions";
-
 import { getGameDetails } from "../services/gamesApi";
 import { getPulseFeed } from "../services/api";
 
@@ -14,30 +12,30 @@ export default function GamePage() {
   const { user, followedGames = [] } = useUser();
   const { followGame } = useToggleActions();
 
-  // 🎮 GAME DETAILS
+  //  GAME DETAILS
   const { data: game, isLoading: gameLoading } = useQuery({
     queryKey: ["game", id],
     queryFn: () => getGameDetails(id),
     enabled: !!id,
   });
 
-  // 📰 FEED (riuso globale)
+  //  FEED (riuso globale)
   const { data: feed = [], isLoading: feedLoading } = useQuery({
     queryKey: ["pulse_feed"],
     queryFn: getPulseFeed,
   });
 
-  // 🧠 DERIVED DATA (NO STATE)
+  //  DERIVED DATA (NO STATE)
   const posts = feed.filter((post) =>
     post.games?.some((game) => game.id === id)
   );
 
-  // ⏳ LOADING
+  //  LOADING
   if (gameLoading || feedLoading) {
     return <div className="p-6">Loading...</div>;
   }
 
-  // ❌ GAME NOT FOUND
+  //  GAME NOT FOUND
   if (!game) {
     return <div className="p-6">Game not found</div>;
   }

@@ -21,7 +21,7 @@ export default function HeroCard({ post }) {
         />
 
         {/* OVERLAY */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent" />
 
         {/* CONTENT */}
         <div className="absolute bottom-0 left-0 p-8">
@@ -45,33 +45,33 @@ export default function HeroCard({ post }) {
             {post.description}
           </p>
 
- 
-         
+
+
 
           {/* CTA */}
-        <div className="mt-6 flex items-center gap-3">
-  
-  <div className="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-medium text-white">
-    Read article
-  </div>
+          <div className="mt-6 flex items-center gap-3">
 
-{post.games?.slice(0, 2).map((game) => (
-  <span
-    key={game.id}
-    onClick={(e) => {
-      e.stopPropagation(); // 🔥 QUESTO È IL FIX se non c'è il click dato che è sull'intera card ne attiva 2, questo li separa
-      navigate(`/games/${game.id}`);
-    }}
-    className="
+            <div className="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-medium text-white">
+              Read article
+            </div>
+
+            {post.games?.slice(0, 2).map((game) => (
+              <span
+                key={game.id}
+                onClick={(e) => {
+                  e.stopPropagation(); //   se non c'è il click dato che è sull'intera card ne attiva 2, questo li separa
+                  navigate(`/games/${game.id}`);
+                }}
+                className="
       rounded-2xl border border-border bg-surface p-4 cursor-pointer
       hover:border-primary hover:bg-white/5 transition
     "
-  >
-    🎮 {game.name}
-  </span>
-))}
+              >
+                {game.name}
+              </span>
+            ))}
 
-</div>
+          </div>
 
         </div>
       </div>

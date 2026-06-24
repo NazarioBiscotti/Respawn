@@ -6,7 +6,7 @@ export default function useGameHighlight(games = []) {
   const renderText = (text) => {
     if (!text || !games.length) return text;
 
-    // costruisco regex con tutti i giochi
+
     const pattern = games
       .map((g) => g.name)
       .join("|");
@@ -30,7 +30,7 @@ export default function useGameHighlight(games = []) {
             }
             className="text-primary cursor-pointer hover:underline"
           >
-            🎮 {part}
+            {part}
           </span>
         );
       }
