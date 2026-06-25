@@ -42,7 +42,7 @@ export default function Dropdown() {
           <div className="py-1 text-sm text-gray-300">
 
             <Link
-              to="/auth"
+              to="/login"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 hover:bg-white/5 hover:text-white"
             >
@@ -68,12 +68,19 @@ export default function Dropdown() {
                 >
                   Profile
                 </Link>
+                <Link
+                  to="/signals"
+                  onClick={() => setOpen(false)}
+                  className="w-1/2 text-center px-2 py-2 hover:bg-white/5 hover:text-white"
+                >
+                  Signals
+                </Link>
 
                 <button
                   onClick={async () => {
                     await signOut();
                     setOpen(false);
-                    navigate("auth");
+                    navigate("/");
                   }}
                   className="w-1/2 px-2 py-2 hover:bg-white/5 hover:text-white"
                 >

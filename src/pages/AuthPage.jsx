@@ -1,8 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-import { signUp } from "../services/authService";
-import { signIn } from "../services/authService";
+import { signUp, signIn } from "../services/authService";
 
 export default function AuthPage() {
   const location = useLocation();
@@ -10,31 +9,37 @@ export default function AuthPage() {
 
   const isSignup = location.pathname === "/register";
 
-  const login = signIn();
-  const signup = signUp();
-
-  const mutation = isSignup ? signup : login;
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
 
-  function handleSubmit(e) {
-    e.preventDefault();
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-    if (isSignup) {
-      signup.mutate({
-        email,
-        password,
-        username,
-      });
-    } else {
-      login.mutate({
-        email,
-        password,
-      });
-    }
+  async function handleSubmit(e) {
+  e.preventDefault();
+
+  setError(null);
+  setLoading(true);
+
+  const { error } = isSignup
+    ? await signUp(email, password, { username })
+    : await signIn(email, password);
+
+  setLoading(false);
+
+  if (error) {
+    setError(error.message);
+    return;
   }
+
+  if (isSignup) {
+    navigate("/login"); 
+    return;
+  }
+
+  navigate("/"); 
+}
 
   function switchMode() {
     navigate(isSignup ? "/login" : "/register");
@@ -55,9 +60,7 @@ export default function AuthPage() {
             type="text"
             placeholder="Username"
             value={username}
-            onChange={(e) =>
-              setUsername(e.target.value)
-            }
+            onChange={(e) => setUsername(e.target.value)}
             className="border-2 rounded-2xl p-3"
           />
         )}
@@ -66,9 +69,7 @@ export default function AuthPage() {
           type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
+          onChange={(e) => setEmail(e.target.value)}
           className="border-2 rounded-2xl p-3"
         />
 
@@ -76,42 +77,31 @@ export default function AuthPage() {
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
+          onChange={(e) => setPassword(e.target.value)}
           className="border-2 rounded-2xl p-3"
         />
 
         {/* ERROR */}
-        {mutation.isError && (
+        {error && (
           <p className="text-red-500 text-sm">
-            {mutation.error.message}
-          </p>
-        )}
-
-        {/* SUCCESS */}
-        {mutation.isSuccess && (
-          <p className="text-green-500 text-sm">
-            {isSignup
-              ? "Account creato!"
-              : "Login effettuato!"}
+            {error}
           </p>
         )}
 
         {/* SUBMIT */}
         <button
           type="submit"
-          disabled={mutation.isPending}
+          disabled={loading}
           className="border rounded p-2"
         >
-          {mutation.isPending
+          {loading
             ? "Loading..."
             : isSignup
             ? "Sign Up"
             : "Login"}
         </button>
 
-        {/* SWITCH CTA (in-page) */}
+        {/* SWITCH */}
         <button
           type="button"
           onClick={switchMode}

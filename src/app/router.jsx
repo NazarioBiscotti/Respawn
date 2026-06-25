@@ -47,11 +47,13 @@ export const router = createBrowserRouter([
 
       {
         path: "signals",
-        element: <Signals />,
+        element: (<Protected>
+          <Signals />
+        </Protected>)
       },
 
       {
-        path: "auth",
+        path: "login",
         element: <AuthPage />
       },
       {
