@@ -7,9 +7,9 @@ export default function Navbar() {
 
   const links = [
     { to: "/", label: "Pulse" },
-    { to: "signals", label: "Signals" },
+    { to: "/signals", label: "Signals" },
     { to: "/discover", label: "Discover" },
-    { to: "profile", label: "Profile" },
+    { to: "/profile", label: "Profile" },
   ];
 
   const username =
